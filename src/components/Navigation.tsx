@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import React, { useState, useEffect } from 'react';
 import { Home, TrendingUp, Upload, Settings, User, LogOut, LogIn, Sun, Moon, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
