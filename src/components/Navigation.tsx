@@ -144,14 +144,14 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         console.error('Failed to load system settings:', error);
         // 默认允许注册
-        setSystemSettings({ systemSettings: { allowUserRegistration: true } });
+        setSystemSettings({ allowUserRegistration: true });
       }
     };
     loadSystemSettings();
     
     // 监听系统设置更新事件
     const handleSettingsUpdate = (event: CustomEvent) => {
-      setSystemSettings(event.detail.systemSettings || { allowUserRegistration: true });
+      setSystemSettings(event.detail.systemSettings);
     };
     
     window.addEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
@@ -425,17 +425,22 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="mt-6 text-center">
           <button
             onClick={switchMode}
-            disabled={isSubmitting}
+            disabled={isSubmitting || (isRegistering && systemSettings?.allowUserRegistration === false)}
             className={`font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              systemSettings?.allowUserRegistration !== false
+              systemSettings?.allowUserRegistration === false
+                ? 'text-gray-400 cursor-not-allowed'
                 ? 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300' 
-                : 'text-gray-400 cursor-not-allowed'
             }`}
-            style={{ display: systemSettings?.allowUserRegistration === false && isRegistering ? 'none' : 'block' }}
           >
-            {isRegistering ? '已有账户？立即登录' : (systemSettings?.allowUserRegistration !== false ? '没有账户？立即注册' : '注册功能已关闭')}
+            {isRegistering 
+              ? '已有账户？立即登录' 
+              : (systemSettings?.allowUserRegistration === false 
+                  ? '注册功能已关闭' 
+                  : '没有账户？立即注册'
+                )
+            }
           </button>
-          {systemSettings?.allowUserRegistration === false && !isRegistering && (
+          {systemSettings?.allowUserRegistration === false && (
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               管理员已关闭用户注册功能
             </p>
