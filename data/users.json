@@ -29,7 +29,7 @@
     "uploadCount": 3,
     "permissions": {
       "canViewScripts": true,
-      "canDownloadScripts": false
+      "canDownloadScripts": true
     }
   }
 ]
