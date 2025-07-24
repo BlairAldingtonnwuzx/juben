@@ -86,7 +86,12 @@ const ScriptBrowser: React.FC<ScriptBrowserProps> = ({ onScriptSelect }) => {
               <img
                 src={script.imageUrl}
                 alt={script.title}
-                className="w-full h-56 object-contain bg-gray-800 dark:bg-gray-800 bg-gray-100"
+                className="w-full h-64 object-cover"
+                style={{ minHeight: '256px' }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://images.pexels.com/photos/1029807/pexels-photo-1029807.jpeg?auto=compress&cs=tinysrgb&w=800';
+                }}
               />
               <div className="absolute top-2 right-2 flex space-x-2">
                 {script.tags.slice(0, 2).map(tag => (
