@@ -7,7 +7,7 @@
     "requireScriptApproval": true,
     "maxUploadSizeKB": 10240,
     "maxUploadsPerDay": 10,
-    "maxScriptsPerUser": 50,
+    "maxScriptsPerUser": 200,
     "allowedFileTypes": [
       "image/jpeg",
       "image/png",
