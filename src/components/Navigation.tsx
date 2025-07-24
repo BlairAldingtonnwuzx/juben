@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Home, TrendingUp, Upload, Settings, User, LogOut, LogIn, Sun, Moon } from 'lucide-react';
+import { Home, TrendingUp, Upload, Settings, User, LogOut, LogIn, Sun, Moon, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
+import { updateUser } from '../utils/api';
 
 interface NavigationProps {
   currentPage: string;
@@ -122,15 +123,298 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
 };
 
 const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      const loginSuccess = await login(email, password);
+      if (loginSuccess) {
+        onClose();
+        resetForm();
+      } else {
+        setError('登录失败，请检查邮箱和密码');
+      }
+    } catch (error) {
+      setError('登录时发生错误，请稍后重试');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
+
+    // 客户端验证
+    if (!name.trim()) {
+      setError('请输入用户名');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('请输入有效的邮箱地址');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('密码长度至少为6位');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('两次输入的密码不一致');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const newUser = {
+        name: name.trim(),
+        email: email.trim(),
+        role: 'user' as const,
+        canUpload: true,
+        skipReview: false,
+        permissions: {
+          canViewScripts: true,
+          canDownloadScripts: true,
+          canUploadScripts: true,
+          canManageUsers: false,
+          canManageTags: false,
+          canApproveScripts: false,
+          canDeleteScripts: false
+        }
+      };
+
+      const result = await updateUser('new', newUser);
+      
+      if (result.success) {
+        setSuccess('注册成功！请使用新账户登录');
+        setTimeout(() => {
+          setIsRegistering(false);
+          setSuccess('');
+          resetForm();
+        }, 2000);
+      } else {
+        setError(result.error || '注册失败，请稍后重试');
+      }
+    } catch (error) {
+      setError('注册时发生错误，请稍后重试');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setName('');
+    setConfirmPassword('');
+    setError('');
+    setSuccess('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  };
+
+  const switchMode = () => {
+    setIsRegistering(!isRegistering);
+    resetForm();
+  };
+
+  const handleClose = () => {
+    resetForm();
+    setIsRegistering(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-md mx-4 transform transition-all">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            {isRegistering ? (
+              <UserPlus className="text-blue-500" size={24} />
+            ) : (
+              <LogIn className="text-blue-500" size={24} />
+            )}
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {isRegistering ? '注册账户' : '登录账户'}
+            </h2>
+          </div>
+          <button
+            onClick={handleClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={isRegistering ? handleRegister : handleLogin} className="space-y-5">
+          {isRegistering && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                用户名 *
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                placeholder="请输入用户名"
+                required={isRegistering}
+                disabled={isSubmitting}
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              邮箱地址 *
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+              placeholder={isRegistering ? "请输入邮箱地址" : "admin@example.com 或 user@example.com"}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              密码 *
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                placeholder={isRegistering ? "请输入密码（至少6位）" : "任意密码"}
+                required
+                disabled={isSubmitting}
+                minLength={isRegistering ? 6 : undefined}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                disabled={isSubmitting}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+
+          {isRegistering && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                确认密码 *
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                  placeholder="请再次输入密码"
+                  required={isRegistering}
+                  disabled={isSubmitting}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <p className="text-green-600 dark:text-green-400 text-sm">{success}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>{isRegistering ? '注册中...' : '登录中...'}</span>
+              </>
+            ) : (
+              <>
+                {isRegistering ? <UserPlus size={20} /> : <LogIn size={20} />}
+                <span>{isRegistering ? '注册账户' : '立即登录'}</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={switchMode}
+            disabled={isSubmitting}
+            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isRegistering ? '已有账户？立即登录' : '没有账户？立即注册'}
+          </button>
+        </div>
+
+        {!isRegistering && (
+          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">演示账户：</p>
+            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+              <p><span className="font-medium">管理员：</span>admin@example.com</p>
+              <p><span className="font-medium">普通用户：</span>user@example.com</p>
+              <p className="text-gray-400 dark:text-gray-500">密码：任意</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Navigation;
       onClose();
     } else {
       setError('登录失败，请检查邮箱和密码');
