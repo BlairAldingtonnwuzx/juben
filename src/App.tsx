@@ -12,15 +12,17 @@ import { Script } from './types';
 function App() {
   const [currentPage, setCurrentPage] = useState('browser');
   const [selectedScript, setSelectedScript] = useState<Script | null>(null);
+  const [previousPage, setPreviousPage] = useState('browser');
 
   const handleScriptSelect = (script: Script) => {
     setSelectedScript(script);
+    setPreviousPage(currentPage);
     setCurrentPage('detail');
   };
 
   const handleBackToList = () => {
     setSelectedScript(null);
-    setCurrentPage('browser');
+    setCurrentPage(previousPage);
   };
 
   const renderPage = () => {
