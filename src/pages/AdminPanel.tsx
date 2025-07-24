@@ -830,13 +830,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
                     type="checkbox"
                     checked={systemSettings.allowUserRegistration}
                     onChange={(e) => setSystemSettings(prev => ({ ...prev, allowUserRegistration: e.target.checked }))}
-                    className="sr-only"
+                    className="sr-only peer"
                   />
                   <div
-                    onClick={() => setSystemSettings(prev => ({ ...prev, allowUserRegistration: !prev.allowUserRegistration }))}
-                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors ${
+                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors peer-focus:ring-2 peer-focus:ring-blue-500 ${
                       systemSettings.allowUserRegistration ? 'bg-blue-600' : 'bg-gray-600'
                     }`}
+                    onClick={() => setSystemSettings(prev => ({ ...prev, allowUserRegistration: !prev.allowUserRegistration }))}
                   >
                     <div
                       className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
@@ -863,13 +863,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
                     type="checkbox"
                     checked={systemSettings.requireScriptApproval}
                     onChange={(e) => setSystemSettings(prev => ({ ...prev, requireScriptApproval: e.target.checked }))}
-                    className="sr-only"
+                    className="sr-only peer"
                   />
                   <div
-                    onClick={() => setSystemSettings(prev => ({ ...prev, requireScriptApproval: !prev.requireScriptApproval }))}
-                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors ${
+                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors peer-focus:ring-2 peer-focus:ring-blue-500 ${
                       systemSettings.requireScriptApproval ? 'bg-blue-600' : 'bg-gray-600'
                     }`}
+                    onClick={() => setSystemSettings(prev => ({ ...prev, requireScriptApproval: !prev.requireScriptApproval }))}
                   >
                     <div
                       className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
