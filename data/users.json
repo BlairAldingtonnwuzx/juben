@@ -28,7 +28,7 @@
     "joinDate": "2024-01-15",
     "uploadCount": 3,
     "permissions": {
-      "canViewScripts": false,
+      "canViewScripts": true,
       "canDownloadScripts": false
     }
   }
