@@ -311,6 +311,8 @@ app.post('/api/scripts', upload.fields([
     
     // 查找用户信息
     const user = users.find(u => u.id === uploaderId);
+    const config = readConfig();
+    const settings = config.systemSettings || {};
     
     const finalBaseScriptId = baseScriptId || Date.now().toString();
     const newScript = {
@@ -325,7 +327,7 @@ app.post('/api/scripts', upload.fields([
       uploadDate: new Date().toISOString().split('T')[0],
       likes: 0,
       downloads: 0,
-      status: (user?.skipReview) ? 'approved' : 'pending',
+      status: (user?.skipReview || !settings.requireScriptApproval) ? 'approved' : 'pending',
       tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
       version: version.trim(),
       baseScriptId: finalBaseScriptId
@@ -343,7 +345,7 @@ app.post('/api/scripts', upload.fields([
       res.json({ 
         success: true, 
         script: newScript,
-        message: user?.skipReview ? '剧本上传成功并已发布' : '剧本上传成功，等待审核'
+        message: (user?.skipReview || !settings.requireScriptApproval) ? '剧本上传成功并已发布' : '剧本上传成功，等待审核'
       });
     } else {
       res.status(500).json({ error: '保存剧本数据失败' });

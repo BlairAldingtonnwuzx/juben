@@ -197,10 +197,19 @@ const Upload: React.FC = () => {
           {user 
             ? (user.skipReview 
                 ? '您拥有免审核权限，剧本将立即发布' 
-                : '上传的剧本需要管理员审核后才能发布')
-            : '游客上传的剧本需要管理员审核后才能发布'
+                : systemSettings.requireScriptApproval 
+                  ? '上传的剧本需要管理员审核后才能发布'
+                  : '剧本将自动发布到剧本库')
+            : systemSettings.requireScriptApproval
+              ? '游客上传的剧本需要管理员审核后才能发布'
+              : '剧本将自动发布到剧本库'
           }
         </p>
+        <div className="mt-2 text-sm text-gray-400 dark:text-gray-400 text-gray-500">
+          <p>• 最大文件大小: {(systemSettings.maxUploadSizeKB / 1024).toFixed(1)} MB</p>
+          <p>• 每日上传限制: {systemSettings.maxUploadsPerDay} 个剧本</p>
+          <p>• 个人剧本总数限制: {systemSettings.maxScriptsPerUser} 个</p>
+        </div>
       </div>
 
       {submitStatus === 'success' && (

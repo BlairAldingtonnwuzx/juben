@@ -13,6 +13,14 @@ const AdminPanel: React.FC = () => {
   const [groupedScripts, setGroupedScripts] = useState<Record<string, Script[]>>({});
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [systemConfig, setSystemConfig] = useState<any>({ availableTags: [] });
+  const [systemSettings, setSystemSettings] = useState({
+    allowUserRegistration: true,
+    requireScriptApproval: true,
+    maxUploadSizeKB: 10240, // 10MB
+    allowedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/json'],
+    maxUploadsPerDay: 10,
+    maxScriptsPerUser: 50
+  });
   const [newTag, setNewTag] = useState('');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
@@ -21,6 +29,7 @@ const AdminPanel: React.FC = () => {
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const [usersPerPage] = useState(10);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
@@ -51,6 +60,10 @@ const AdminPanel: React.FC = () => {
           setUsersState(users);
           setScriptsState(scripts);
           setSystemConfig(config);
+          setSystemSettings(prev => ({
+            ...prev,
+            ...config.systemSettings
+          }));
         } catch (error) {
           console.error('加载数据失败:', error);
         }
@@ -170,11 +183,33 @@ const AdminPanel: React.FC = () => {
     });
   };
 
+  const handleUpdateSystemSettings = async () => {
+    setIsUpdatingSettings(true);
+    try {
+      const config = {
+        availableTags: systemConfig.availableTags,
+        systemSettings
+      };
+      
+      const result = await updateSystemConfig(config);
+      if (result.success) {
+        alert('系统设置更新成功');
+      } else {
+        alert('更新失败: ' + result.error);
+      }
+    } catch (error) {
+      console.error('更新系统设置失败:', error);
+      alert('更新失败');
+    } finally {
+      setIsUpdatingSettings(false);
+    }
+  };
+
   const handleAddTag = async () => {
     if (!newTag.trim() || systemConfig.availableTags.includes(newTag.trim())) return;
     
     const updatedTags = [...systemConfig.availableTags, newTag.trim()];
-    const result = await updateSystemConfig({ availableTags: updatedTags });
+    const result = await updateSystemConfig({ availableTags: updatedTags, systemSettings });
     
     if (result.success) {
       setSystemConfig({ ...systemConfig, availableTags: updatedTags });
@@ -184,7 +219,7 @@ const AdminPanel: React.FC = () => {
 
   const handleRemoveTag = async (tagToRemove: string) => {
     const updatedTags = systemConfig.availableTags.filter((tag: string) => tag !== tagToRemove);
-    const result = await updateSystemConfig({ availableTags: updatedTags });
+    const result = await updateSystemConfig({ availableTags: updatedTags, systemSettings });
     
     if (result.success) {
       setSystemConfig({ ...systemConfig, availableTags: updatedTags });
@@ -869,42 +904,231 @@ const AdminPanel: React.FC = () => {
             </div>
           )}
           {activeTab === 'settings' && (
-            <div>
-              <h2 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-4">系统设置</h2>
+            <div className="space-y-8">
+              {/* 用户注册设置 */}
               <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
-                <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-6">用户注册设置</h3>
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white dark:text-white text-gray-900 font-medium">自动审核</h3>
-                      <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">新用户上传的剧本自动通过审核</p>
+                      <label className="text-white dark:text-white text-gray-900 font-medium">允许用户注册</label>
+                      <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm">控制是否允许新用户自主注册账户</p>
                     </div>
-                    <button className="bg-gray-600 dark:bg-gray-600 bg-gray-300 hover:bg-gray-500 dark:hover:bg-gray-500 hover:bg-gray-400 text-white dark:text-white text-gray-900 px-4 py-2 rounded-lg transition-colors">
-                      已关闭
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white dark:text-white text-gray-900 font-medium">用户注册</h3>
-                      <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">允许新用户注册账户</p>
-                    </div>
-                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      已开启
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white dark:text-white text-gray-900 font-medium">上传限制</h3>
-                      <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">每个用户每日最大上传数量</p>
-                    </div>
-                    <input
-                      type="number"
-                      defaultValue="5"
-                      className="w-20 px-3 py-2 bg-gray-700 dark:bg-gray-700 bg-white text-white dark:text-white text-gray-900 rounded border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={systemSettings.allowUserRegistration}
+                        onChange={(e) => setSystemSettings(prev => ({
+                          ...prev,
+                          allowUserRegistration: e.target.checked
+                        }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
                   </div>
                 </div>
+              </div>
+
+              {/* 剧本审核设置 */}
+              <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
+                <h3 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-6">剧本审核设置</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-white dark:text-white text-gray-900 font-medium">需要管理员审核</label>
+                      <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm">关闭后所有上传的剧本将自动通过审核</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={systemSettings.requireScriptApproval}
+                        onChange={(e) => setSystemSettings(prev => ({
+                          ...prev,
+                          requireScriptApproval: e.target.checked
+                        }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 上传限制设置 */}
+              <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
+                <h3 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-6">上传限制设置</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-white dark:text-white text-gray-900 font-medium mb-2">
+                      最大文件大小 (KB)
+                    </label>
+                    <input
+                      type="number"
+                      min="1024"
+                      max="102400"
+                      value={systemSettings.maxUploadSizeKB}
+                      onChange={(e) => setSystemSettings(prev => ({
+                        ...prev,
+                        maxUploadSizeKB: parseInt(e.target.value) || 10240
+                      }))}
+                      className="w-full px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-100 text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm mt-1">
+                      当前: {(systemSettings.maxUploadSizeKB / 1024).toFixed(1)} MB
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-white dark:text-white text-gray-900 font-medium mb-2">
+                      每日上传限制
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={systemSettings.maxUploadsPerDay}
+                      onChange={(e) => setSystemSettings(prev => ({
+                        ...prev,
+                        maxUploadsPerDay: parseInt(e.target.value) || 10
+                      }))}
+                      className="w-full px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-100 text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm mt-1">
+                      每个用户每天最多上传剧本数量
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-white dark:text-white text-gray-900 font-medium mb-2">
+                      用户剧本总数限制
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="1000"
+                      value={systemSettings.maxScriptsPerUser}
+                      onChange={(e) => setSystemSettings(prev => ({
+                        ...prev,
+                        maxScriptsPerUser: parseInt(e.target.value) || 50
+                      }))}
+                      className="w-full px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-100 text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm mt-1">
+                      每个用户最多拥有的剧本数量
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-white dark:text-white text-gray-900 font-medium mb-2">
+                      允许的文件类型
+                    </label>
+                    <div className="space-y-2">
+                      {['image/jpeg', 'image/png', 'image/gif', 'application/json'].map(type => (
+                        <label key={type} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={systemSettings.allowedFileTypes.includes(type)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSystemSettings(prev => ({
+                                  ...prev,
+                                  allowedFileTypes: [...prev.allowedFileTypes, type]
+                                }));
+                              } else {
+                                setSystemSettings(prev => ({
+                                  ...prev,
+                                  allowedFileTypes: prev.allowedFileTypes.filter(t => t !== type)
+                                }));
+                              }
+                            }}
+                            className="rounded border-gray-600 dark:border-gray-600 border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-gray-300 dark:text-gray-300 text-gray-700 text-sm">
+                            {type === 'image/jpeg' ? 'JPEG 图片' :
+                             type === 'image/png' ? 'PNG 图片' :
+                             type === 'image/gif' ? 'GIF 图片' :
+                             type === 'application/json' ? 'JSON 文件' : type}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 标签管理 */}
+              <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
+                <h3 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-6">标签管理</h3>
+                
+                <div className="mb-6">
+                  <div className="flex space-x-3">
+                    <input
+                      type="text"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="输入新标签名称"
+                      className="flex-1 px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-100 text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                    />
+                    <button
+                      onClick={handleAddTag}
+                      disabled={!newTag.trim() || systemConfig.availableTags.includes(newTag.trim())}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center space-x-2"
+                    >
+                      <Plus size={16} />
+                      <span>添加</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-lg font-semibold text-white dark:text-white text-gray-900 mb-4">
+                    现有标签 ({systemConfig.availableTags.length})
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {systemConfig.availableTags.map((tag: string) => (
+                      <div
+                        key={tag}
+                        className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center space-x-2"
+                      >
+                        <span>{tag}</span>
+                        <button
+                          onClick={() => handleRemoveTag(tag)}
+                          className="hover:bg-blue-700 rounded-full p-1 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {systemConfig.availableTags.length === 0 && (
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-center py-8">
+                      暂无标签，请添加新标签
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* 保存设置按钮 */}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleUpdateSystemSettings}
+                  disabled={isUpdatingSettings}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-lg font-semibold transition-colors flex items-center space-x-2"
+                >
+                  {isUpdatingSettings ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>保存中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Settings size={20} />
+                      <span>保存设置</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}

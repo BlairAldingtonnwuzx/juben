@@ -393,10 +393,20 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <button
             onClick={switchMode}
             disabled={isSubmitting}
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              allowRegistration 
+                ? 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300' 
+                : 'text-gray-400 cursor-not-allowed'
+            }`}
+            style={{ display: !allowRegistration && isRegistering ? 'none' : 'block' }}
           >
-            {isRegistering ? '已有账户？立即登录' : '没有账户？立即注册'}
+            {isRegistering ? '已有账户？立即登录' : (allowRegistration ? '没有账户？立即注册' : '注册功能已关闭')}
           </button>
+          {!allowRegistration && !isRegistering && (
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
+              管理员已关闭用户注册功能
+            </p>
+          )}
         </div>
 
         {!isRegistering && (

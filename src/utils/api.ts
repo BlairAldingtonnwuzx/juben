@@ -233,7 +233,17 @@ export const fetchSystemConfig = async () => {
     return data;
   } catch (error) {
     console.error('获取系统配置失败:', error);
-    return { availableTags: ['推理', '悬疑', '科幻', '恐怖', '冒险', '角色扮演', '团队合作', '简单', '中等难度', '高难度'] };
+    return { 
+      availableTags: ['推理', '悬疑', '科幻', '恐怖', '冒险', '角色扮演', '团队合作', '简单', '中等难度', '高难度'],
+      systemSettings: {
+        allowUserRegistration: true,
+        requireScriptApproval: true,
+        maxUploadSizeKB: 10240,
+        allowedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/json'],
+        maxUploadsPerDay: 10,
+        maxScriptsPerUser: 50
+      }
+    };
   }
 };
 
