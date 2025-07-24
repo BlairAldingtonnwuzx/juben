@@ -195,6 +195,13 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 检查注册功能是否被禁用
+    if (systemSettings?.allowUserRegistration === false) {
+      setError('注册功能已被管理员关闭');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError('');
     setSuccess('');
@@ -273,6 +280,10 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const switchMode = () => {
+    // 如果注册功能被禁用，不允许切换到注册模式
+    if (!isRegistering && systemSettings?.allowUserRegistration === false) {
+      return;
+    }
     setIsRegistering(!isRegistering);
     resetForm();
   };
@@ -425,7 +436,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="mt-6 text-center">
           <button
             onClick={switchMode}
-            disabled={isSubmitting || (isRegistering && systemSettings?.allowUserRegistration === false)}
+            disabled={isSubmitting || systemSettings?.allowUserRegistration === false}
             className={`font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               systemSettings?.allowUserRegistration === false
                 ? 'text-gray-400 cursor-not-allowed'
