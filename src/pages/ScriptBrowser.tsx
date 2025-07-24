@@ -86,7 +86,7 @@ const ScriptBrowser: React.FC<ScriptBrowserProps> = ({ onScriptSelect }) => {
               <img
                 src={script.imageUrl}
                 alt={script.title}
-                className="w-full h-48 object-cover"
+                className="w-full h-56 object-contain bg-gray-800 dark:bg-gray-800 bg-gray-100"
               />
               <div className="absolute top-2 right-2 flex space-x-2">
                 {script.tags.slice(0, 2).map(tag => (
