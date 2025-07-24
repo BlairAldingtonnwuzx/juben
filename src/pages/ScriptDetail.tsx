@@ -106,6 +106,26 @@ const ScriptDetail: React.FC<ScriptDetailProps> = ({ script, onBack }) => {
     }
   };
 
+  const handleDownloadImage = async () => {
+    try {
+      const response = await fetch(currentScript.imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${(scriptMeta?.name || currentScript.title).replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}_v${currentScript.version || '1'}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // 释放对象URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('下载图片失败:', error);
+    }
+  };
+
   // Parse JSON data
   const jsonData = currentScript.jsonData;
   const scriptMeta: ScriptMeta | null = Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id === '_meta' 
