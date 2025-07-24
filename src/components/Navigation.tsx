@@ -330,7 +330,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
-                placeholder={isRegistering ? "请输入密码（至少6位）" : "任意密码"}
+                placeholder={isRegistering ? "请输入邮箱地址" : "请输入邮箱地址"}
                 required
                 disabled={isSubmitting}
                 minLength={isRegistering ? 6 : undefined}
@@ -428,7 +428,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">演示账户：</p>
             <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-              <p><span className="font-medium">普通用户：</span>user@example.com</p>
+              <p><span className="font-medium">测试账户：</span>user@example.com</p>
               <p className="text-gray-400 dark:text-gray-500">密码：任意</p>
             </div>
           </div>
