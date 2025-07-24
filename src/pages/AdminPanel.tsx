@@ -17,6 +17,9 @@ const AdminPanel: React.FC = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [currentUserPage, setCurrentUserPage] = useState(1);
+  const [usersPerPage] = useState(10);
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
@@ -269,6 +272,24 @@ const AdminPanel: React.FC = () => {
       }
     });
   };
+
+  // 用户搜索和分页逻辑
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(userSearchTerm.toLowerCase())
+  );
+
+  const totalUserPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const startUserIndex = (currentUserPage - 1) * usersPerPage;
+  const endUserIndex = startUserIndex + usersPerPage;
+  const currentUsers = filteredUsers.slice(startUserIndex, endUserIndex);
+
+  // 重置分页当搜索条件改变时
+  React.useEffect(() => {
+    setCurrentUserPage(1);
+  }, [userSearchTerm]);
+
   const toggleGroupExpansion = (groupKey: string) => {
     setExpandedGroups(prev => ({
       ...prev,
@@ -488,15 +509,32 @@ const AdminPanel: React.FC = () => {
             <div>
               <h2 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-4">用户管理</h2>
               
-              {/* 添加用户按钮 */}
+              {/* 搜索栏 */}
               <div className="mb-6">
-                <button
-                  onClick={() => setShowAddUserModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  <Plus size={16} />
-                  <span>添加用户</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      placeholder="搜索用户（姓名、邮箱、角色）..."
+                      value={userSearchTerm}
+                      onChange={(e) => setUserSearchTerm(e.target.value)}
+                      className="w-full px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-white text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <button
+                    onClick={() => setShowAddUserModal(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    <Plus size={16} />
+                    <span>添加用户</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 用户统计信息 */}
+              <div className="mb-4 text-gray-400 dark:text-gray-400 text-gray-600 text-sm">
+                显示 {startUserIndex + 1}-{Math.min(endUserIndex, filteredUsers.length)} 条，共 {filteredUsers.length} 个用户
+                {userSearchTerm && ` (从 ${users.length} 个用户中筛选)`}
               </div>
 
               <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg overflow-hidden border border-transparent dark:border-transparent border-gray-200">
@@ -511,7 +549,7 @@ const AdminPanel: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((u) => (
+                    {currentUsers.map((u) => (
                       <tr key={u.id} className="border-t border-gray-700 dark:border-gray-700 border-gray-200">
                         <td className="px-6 py-4">
                           <div>
@@ -550,15 +588,96 @@ const AdminPanel: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+                
+                {/* 空状态 */}
+                {currentUsers.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-lg">
+                      {userSearchTerm ? '没有找到匹配的用户' : '暂无用户数据'}
+                    </p>
+                  </div>
+                )}
               </div>
+              
+              {/* 分页控件 */}
+              {totalUserPages > 1 && (
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm">
+                    第 {currentUserPage} 页，共 {totalUserPages} 页
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setCurrentUserPage(Math.max(1, currentUserPage - 1))}
+                      disabled={currentUserPage === 1}
+                      className="px-3 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300 transition-colors"
+                    >
+                      上一页
+                    </button>
+                    
+                    {/* 页码按钮 */}
+                    {Array.from({ length: Math.min(5, totalUserPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalUserPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentUserPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentUserPage >= totalUserPages - 2) {
+                        pageNum = totalUserPages - 4 + i;
+                      } else {
+                        pageNum = currentUserPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentUserPage(pageNum)}
+                          className={`px-3 py-2 rounded-lg transition-colors ${
+                            currentUserPage === pageNum
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    
+                    <button
+                      onClick={() => setCurrentUserPage(Math.min(totalUserPages, currentUserPage + 1))}
+                      disabled={currentUserPage === totalUserPages}
+                      className="px-3 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300 transition-colors"
+                    >
+                      下一页
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'permissions' && (
             <div>
               <h2 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-4">权限管理</h2>
+              
+              {/* 搜索栏 */}
+              <div className="mb-6">
+                <input
+                  type="text"
+                  placeholder="搜索用户（姓名、邮箱、角色）..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-700 dark:bg-gray-700 bg-white text-white dark:text-white text-gray-900 rounded-lg border border-gray-600 dark:border-gray-600 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              {/* 用户统计信息 */}
+              <div className="mb-4 text-gray-400 dark:text-gray-400 text-gray-600 text-sm">
+                显示 {startUserIndex + 1}-{Math.min(endUserIndex, filteredUsers.length)} 条，共 {filteredUsers.length} 个用户
+                {userSearchTerm && ` (从 ${users.length} 个用户中筛选)`}
+              </div>
+              
               <div className="space-y-6">
-                {users.map((user) => (
+                {currentUsers.map((user) => (
                   <div key={user.id} className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
                     <div className="flex items-center justify-between mb-4">
                       <div>
@@ -595,7 +714,70 @@ const AdminPanel: React.FC = () => {
                     </div>
                   </div>
                 ))}
+                
+                {/* 空状态 */}
+                {currentUsers.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-lg">
+                      {userSearchTerm ? '没有找到匹配的用户' : '暂无用户数据'}
+                    </p>
+                  </div>
+                )}
               </div>
+              
+              {/* 分页控件 */}
+              {totalUserPages > 1 && (
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm">
+                    第 {currentUserPage} 页，共 {totalUserPages} 页
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setCurrentUserPage(Math.max(1, currentUserPage - 1))}
+                      disabled={currentUserPage === 1}
+                      className="px-3 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300 transition-colors"
+                    >
+                      上一页
+                    </button>
+                    
+                    {/* 页码按钮 */}
+                    {Array.from({ length: Math.min(5, totalUserPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalUserPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentUserPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentUserPage >= totalUserPages - 2) {
+                        pageNum = totalUserPages - 4 + i;
+                      } else {
+                        pageNum = currentUserPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentUserPage(pageNum)}
+                          className={`px-3 py-2 rounded-lg transition-colors ${
+                            currentUserPage === pageNum
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    
+                    <button
+                      onClick={() => setCurrentUserPage(Math.min(totalUserPages, currentUserPage + 1))}
+                      disabled={currentUserPage === totalUserPages}
+                      className="px-3 py-2 bg-gray-700 dark:bg-gray-700 bg-gray-200 text-white dark:text-white text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300 transition-colors"
+                    >
+                      下一页
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
