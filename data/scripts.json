@@ -1,29 +1,5 @@
 [
   {
-    "id": "3",
-    "title": "古堡秘密",
-    "description": "中世纪背景的恐怖剧本，挑战玩家的胆量",
-    "imageUrl": "https://images.pexels.com/photos/161162/castle-germany-mansion-manor-161162.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "jsonData": {
-      "chapters": 7,
-      "difficulty": "easy",
-      "duration": "2-3小时"
-    },
-    "uploaderId": "2",
-    "uploaderName": "普通用户",
-    "uploadDate": "2024-01-16",
-    "likes": 29,
-    "downloads": 98,
-    "status": "approved",
-    "tags": [
-      "恐怖",
-      "中世纪",
-      "简单"
-    ],
-    "version": "v1.0",
-    "baseScriptId": "3"
-  },
-  {
     "id": "1753323679727",
     "title": "暗流",
     "description": "暗流",
