@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Users, FileText, Settings, Check, X, Trash2, Eye, EyeOff, Search, ChevronLeft, ChevronRight, Plus, Save, Loader2 } from 'lucide-react';
+import { Users, FileText, Settings, Check, X, Trash2, Eye, EyeOff, Search, ChevronLeft, ChevronRight, Plus, Save, Loader2, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { fetchScripts, fetchUsers, updateScript, deleteScript, updateUser, deleteUser, fetchSystemConfig, updateSystemConfig } from '../utils/api';
 import { Script, User } from '../types';
 
-const AdminPanel: React.FC = () => {
+interface AdminPanelProps {
+  onScriptSelect: (script: Script) => void;
+}
+
+const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
   // 所有 hooks 必须在组件顶部无条件调用
   const { user, isAdmin } = useAuth();
   
@@ -545,6 +549,13 @@ const AdminPanel: React.FC = () => {
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2 ml-4">
+                                <button
+                                  onClick={() => onScriptSelect(script)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
+                                  title="查看详情"
+                                >
+                                  <Info size={16} />
+                                </button>
                                 <button
                                   onClick={() => handleDeleteScript(script.id)}
                                   className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-colors"
