@@ -825,21 +825,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
                   <span className="text-gray-300 font-medium">允许用户注册</span>
                   <p className="text-gray-400 text-sm">关闭后，新用户无法自行注册账户</p>
                 </div>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <input
                     type="checkbox"
                     checked={systemSettings.allowUserRegistration}
                     onChange={(e) => setSystemSettings(prev => ({ ...prev, allowUserRegistration: e.target.checked }))}
-                    className="sr-only peer"
+                    className="sr-only"
+                    id="allowUserRegistration"
                   />
-                  <div
-                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors peer-focus:ring-2 peer-focus:ring-blue-500 ${
+                  <div className={`w-12 h-6 rounded-full transition-colors ${
                       systemSettings.allowUserRegistration ? 'bg-blue-600' : 'bg-gray-600'
-                    }`}
-                    onClick={() => setSystemSettings(prev => ({ ...prev, allowUserRegistration: !prev.allowUserRegistration }))}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                    }`}>
+                    <label
+                      htmlFor="allowUserRegistration"
+                      className={`block w-5 h-5 bg-white rounded-full shadow-md transform transition-transform cursor-pointer ${
                         systemSettings.allowUserRegistration ? 'translate-x-6' : 'translate-x-0.5'
                       } mt-0.5`}
                     />
@@ -858,21 +857,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
                   <span className="text-gray-300 font-medium">需要审核剧本</span>
                   <p className="text-gray-400 text-sm">关闭后，所有剧本将自动通过审核</p>
                 </div>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <input
                     type="checkbox"
                     checked={systemSettings.requireScriptApproval}
                     onChange={(e) => setSystemSettings(prev => ({ ...prev, requireScriptApproval: e.target.checked }))}
-                    className="sr-only peer"
+                    className="sr-only"
+                    id="requireScriptApproval"
                   />
-                  <div
-                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors peer-focus:ring-2 peer-focus:ring-blue-500 ${
+                  <div className={`w-12 h-6 rounded-full transition-colors ${
                       systemSettings.requireScriptApproval ? 'bg-blue-600' : 'bg-gray-600'
-                    }`}
-                    onClick={() => setSystemSettings(prev => ({ ...prev, requireScriptApproval: !prev.requireScriptApproval }))}
-                  >
-                    <div
-                      className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                    }`}>
+                    <label
+                      htmlFor="requireScriptApproval"
+                      className={`block w-5 h-5 bg-white rounded-full shadow-md transform transition-transform cursor-pointer ${
                         systemSettings.requireScriptApproval ? 'translate-x-6' : 'translate-x-0.5'
                       } mt-0.5`}
                     />
