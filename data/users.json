@@ -24,7 +24,7 @@
     "email": "user@example.com",
     "role": "user",
     "canUpload": true,
-    "skipReview": true,
+    "skipReview": false,
     "joinDate": "2024-01-15",
     "uploadCount": 3,
     "permissions": {
