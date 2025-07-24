@@ -19,21 +19,6 @@
     }
   },
   {
-    "id": "2",
-    "name": "普通用户",
-    "email": "user@example.com",
-    "role": "user",
-    "canUpload": true,
-    "skipReview": false,
-    "joinDate": "2024-01-15",
-    "uploadCount": 3,
-    "permissions": {
-      "canViewScripts": true,
-      "canDownloadScripts": true,
-      "canUploadScripts": true
-    }
-  },
-  {
     "id": "1753331594614",
     "name": "萌萌",
     "email": "1070470144@qq.com",
