@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, TrendingUp, Upload, Settings, User, LogOut, LogIn, Sun, Moon, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
-import { updateUser, fetchSystemConfig } from '../utils/api';
+import { updateUser, fetchSystemConfig, fetchUsers } from '../utils/api';
 
 interface NavigationProps {
   currentPage: string;
@@ -264,6 +264,18 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
 
     try {
+      // 检查邮箱是否已存在
+      const existingUsers = await fetchUsers();
+      const emailExists = existingUsers.some(user => 
+        user.email.toLowerCase() === email.trim().toLowerCase()
+      );
+      
+      if (emailExists) {
+        setError('该邮箱已被注册，请使用其他邮箱或直接登录');
+        setIsSubmitting(false);
+        return;
+      }
+
       const newUser = {
         name: name.trim(),
         email: email.trim(),

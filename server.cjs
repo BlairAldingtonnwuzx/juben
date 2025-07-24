@@ -450,6 +450,18 @@ app.put('/api/users/:id', (req, res) => {
     const users = readUsers();
     
     if (id === 'new') {
+      // 检查邮箱是否已存在
+      const emailExists = users.some(user => 
+        user.email.toLowerCase() === updates.email.toLowerCase()
+      );
+      
+      if (emailExists) {
+        return res.status(400).json({ 
+          success: false, 
+          error: '该邮箱已被注册，请使用其他邮箱' 
+        });
+      }
+
       // 添加新用户
       const newUser = {
         id: Date.now().toString(),
@@ -472,6 +484,20 @@ app.put('/api/users/:id', (req, res) => {
         return res.status(404).json({ error: '用户不存在' });
       }
       
+      // 如果更新邮箱，检查是否与其他用户重复
+      if (updates.email && updates.email !== users[userIndex].email) {
+        const emailExists = users.some((user, index) => 
+          index !== userIndex && user.email.toLowerCase() === updates.email.toLowerCase()
+        );
+        
+        if (emailExists) {
+          return res.status(400).json({ 
+            success: false, 
+            error: '该邮箱已被其他用户使用' 
+          });
+        }
+      }
+
       // 更新用户信息
       users[userIndex] = { ...users[userIndex], ...updates };
       
