@@ -46,7 +46,7 @@ const Upload: React.FC = () => {
         const approved = scripts.filter((script: Script) => script.status === 'approved');
         setApprovedScripts(approved);
         setAvailableTags(config.availableTags || []);
-        setSystemSettings(config);
+        setSystemSettings(config.systemSettings || systemSettings);
       } catch (error) {
         console.error('加载剧本失败:', error);
       }
