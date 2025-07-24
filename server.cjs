@@ -188,7 +188,9 @@ const initDataFiles = () => {
       maxUploadSizeKB: 10240,
       allowedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/json'],
       maxUploadsPerDay: 10,
-      maxScriptsPerUser: 50
+      maxScriptsPerUser: 50,
+      requireEmailVerification: false,
+      autoApproveNewUsers: true
     }
   };
 

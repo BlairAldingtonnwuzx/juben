@@ -181,7 +181,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         // 静默处理错误，避免干扰用户体验
       }
-    }, 5000); // 每5秒检查一次
+    }, 10000); // 每10秒检查一次，减少频率
     
     return () => {
       window.removeEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
@@ -197,6 +197,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     if (systemSettings?.allowUserRegistration === false && isRegistering) {
       setIsRegistering(false);
       resetForm();
+      setError('管理员已关闭用户注册功能');
     }
   }, [systemSettings?.allowUserRegistration, isRegistering]);
   const validateEmail = (email: string) => {
