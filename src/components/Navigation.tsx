@@ -423,16 +423,6 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </p>
           )}
         </div>
-
-        {!isRegistering && (
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">演示账户：</p>
-            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-              <p><span className="font-medium">测试账户：</span>user@example.com</p>
-              <p className="text-gray-400 dark:text-gray-500">密码：任意</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
