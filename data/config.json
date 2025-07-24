@@ -3,7 +3,7 @@
     "管三"
   ],
   "systemSettings": {
-    "allowUserRegistration": true,
+    "allowUserRegistration": false,
     "requireScriptApproval": true,
     "maxUploadSizeKB": 10240,
     "maxUploadsPerDay": 10,
