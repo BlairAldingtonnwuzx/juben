@@ -1,29 +1,5 @@
 [
   {
-    "id": "1",
-    "title": "神秘庄园",
-    "description": "一个充满悬疑和谜题的推理剧本，适合6-8人游戏",
-    "imageUrl": "https://images.pexels.com/photos/1029807/pexels-photo-1029807.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "jsonData": {
-      "chapters": 8,
-      "difficulty": "medium",
-      "duration": "3-4小时"
-    },
-    "uploaderId": "2",
-    "uploaderName": "普通用户",
-    "uploadDate": "2024-01-20",
-    "likes": 42,
-    "downloads": 156,
-    "status": "approved",
-    "tags": [
-      "推理",
-      "悬疑",
-      "中等难度"
-    ],
-    "version": "v1.0",
-    "baseScriptId": "1"
-  },
-  {
     "id": "2",
     "title": "星际逃亡",
     "description": "科幻背景的角色扮演剧本，体验太空冒险",
