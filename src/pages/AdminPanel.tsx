@@ -119,6 +119,34 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleDeleteSeries = async (baseScriptId: string) => {
+    const seriesToDelete = scripts.filter(s => s.baseScriptId === baseScriptId);
+    const seriesTitle = seriesToDelete[0]?.title || '未知系列';
+    
+    if (window.confirm(`确定要删除"${seriesTitle}"系列的所有 ${seriesToDelete.length} 个版本吗？此操作不可撤销。`)) {
+      try {
+        // 逐个删除系列中的所有剧本
+        const deletePromises = seriesToDelete.map(script => deleteScript(script.id));
+        const results = await Promise.all(deletePromises);
+        
+        // 检查是否所有删除操作都成功
+        const allSuccess = results.every(result => result.success);
+        
+        if (allSuccess) {
+          // 从本地状态中移除已删除的剧本
+          const updatedScripts = scripts.filter(s => s.baseScriptId !== baseScriptId);
+          setScriptsState(updatedScripts);
+          alert(`成功删除"${seriesTitle}"系列的所有版本`);
+        } else {
+          alert('部分剧本删除失败，请刷新页面查看最新状态');
+        }
+      } catch (error) {
+        console.error('删除系列失败:', error);
+        alert('删除系列时发生错误');
+      }
+    }
+  };
+
   const handleUserPermissionChange = (userId: string, permission: keyof UserPermissions, value: boolean) => {
     const user = users.find(u => u.id === userId);
     if (!user) return;
@@ -386,6 +414,17 @@ const AdminPanel: React.FC = () => {
                             <span className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">
                               总下载: {groupScripts.reduce((sum, s) => sum + s.downloads, 0)}
                             </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteSeries(groupKey);
+                              }}
+                              className="flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
+                              title="删除整个系列"
+                            >
+                              <Trash2 size={14} />
+                              <span>删除系列</span>
+                            </button>
                             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                           </div>
                         </div>
