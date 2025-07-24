@@ -20,6 +20,7 @@ const AdminPanel: React.FC = () => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const [usersPerPage] = useState(10);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
@@ -59,8 +60,12 @@ const AdminPanel: React.FC = () => {
   }, [isAdmin]);
 
   useEffect(() => {
-    const approvedScripts = scripts.filter(s => s.status !== 'pending');
-    const grouped = approvedScripts.reduce((acc, script) => {
+    const filteredScripts = scripts.filter(script => {
+      if (statusFilter === 'all') return true;
+      return script.status === statusFilter;
+    });
+
+    const grouped = filteredScripts.reduce((acc, script) => {
       const key = script.baseScriptId || script.id;
       if (!acc[key]) {
         acc[key] = [];
@@ -74,7 +79,7 @@ const AdminPanel: React.FC = () => {
     });
     
     setGroupedScripts(grouped);
-  }, [scripts]);
+  }, [scripts, statusFilter]);
 
   if (!isAdmin) {
     return (
@@ -254,6 +259,23 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleStatusChange = async (scriptId: string, newStatus: 'pending' | 'approved' | 'rejected') => {
+    try {
+      const result = await updateScript(scriptId, { status: newStatus });
+      if (result.success) {
+        setScriptsState(prevScripts =>
+          prevScripts.map(script =>
+            script.id === scriptId ? { ...script, status: newStatus } : script
+          )
+        );
+      } else {
+        console.error('更新剧本状态失败:', result.error);
+      }
+    } catch (error) {
+      console.error('更新剧本状态失败:', error);
+    }
+  };
+
   const resetUserForm = () => {
     setUserForm({
       name: '',
@@ -341,76 +363,59 @@ const AdminPanel: React.FC = () => {
         <div className="flex-1">
           {activeTab === 'scripts' && (
             <div className="space-y-6">
-              {pendingScripts.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-4">
-                    待审核剧本 ({pendingScripts.length})
-                  </h2>
-                  <div className="space-y-4">
-                    {pendingScripts.map((script) => (
-                      <div key={script.id} className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-6 border border-transparent dark:border-transparent border-gray-200">
-                        <div className="flex items-start space-x-4">
-                          <img
-                            src={script.imageUrl}
-                            alt={script.title}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-white dark:text-white text-gray-900 mb-2">{script.title}</h3>
-                            <p className="text-gray-300 dark:text-gray-300 text-gray-600 mb-2">{script.description}</p>
-                            <div className="flex flex-wrap gap-2 mb-3">
-                              {script.tags.map(tag => (
-                                <span key={tag} className="bg-blue-600 text-white px-2 py-1 rounded text-sm">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                            <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">
-                              上传者：{script.uploaderName} · {script.uploadDate}
-                            </p>
-                            <div className="flex items-center space-x-2 mt-2">
-                              <Tag size={14} className="text-gray-400" />
-                              <span className="text-gray-400 dark:text-gray-400 text-gray-500 text-sm">版本 {script.version}</span>
-                            </div>
-                          </div>
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => handleScriptAction(script.id, 'approve')}
-                              className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                            >
-                              <CheckCircle size={16} />
-                              <span>通过</span>
-                            </button>
-                            <button
-                              onClick={() => handleScriptAction(script.id, 'reject')}
-                              className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                            >
-                              <XCircle size={16} />
-                              <span>拒绝</span>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteScript(script.id)}
-                              className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                            >
-                              <Trash2 size={16} />
-                              <span>删除</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-white dark:text-white text-gray-900 mb-4">剧本管理</h2>
+                
+                {/* 状态筛选器 */}
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setStatusFilter('all')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        statusFilter === 'all'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-gray-300 dark:text-gray-300 text-gray-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      全部 ({scripts.length})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('pending')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        statusFilter === 'pending'
+                          ? 'bg-yellow-600 text-white'
+                          : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-gray-300 dark:text-gray-300 text-gray-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      待审核 ({scripts.filter(s => s.status === 'pending').length})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('approved')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        statusFilter === 'approved'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-gray-300 dark:text-gray-300 text-gray-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      已通过 ({scripts.filter(s => s.status === 'approved').length})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('rejected')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        statusFilter === 'rejected'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-700 dark:bg-gray-700 bg-gray-200 text-gray-300 dark:text-gray-300 text-gray-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      已拒绝 ({scripts.filter(s => s.status === 'rejected').length})
+                    </button>
                   </div>
                 </div>
-              )}
 
-              <div>
-                <h2 className="text-xl font-semibold text-white dark:text-white text-gray-900 mb-4">
-                  所有剧本 ({approvedScripts.length})
-                </h2>
                 <div className="space-y-4">
                   {Object.entries(groupedScripts).map(([groupKey, groupScripts]) => {
-                    const mainScript = groupScripts[0]; // 最新版本作为主要显示
                     const isExpanded = expandedGroups[groupKey];
+                    const mainScript = groupScripts[0];
                     
                     return (
                       <div key={groupKey} className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg overflow-hidden border border-transparent dark:border-transparent border-gray-200">
@@ -452,55 +457,83 @@ const AdminPanel: React.FC = () => {
                         
                         {isExpanded && (
                           <div className="border-t border-gray-700 dark:border-gray-700 border-gray-200">
-                            <table className="w-full">
-                              <thead className="bg-gray-700 dark:bg-gray-700 bg-gray-100">
-                                <tr>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">版本</th>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">上传者</th>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">状态</th>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">点赞/下载</th>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">日期</th>
-                                  <th className="px-6 py-3 text-left text-white dark:text-white text-gray-900">操作</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {groupScripts.map((script) => (
-                                  <tr key={script.id} className="border-t border-gray-600 dark:border-gray-600 border-gray-200">
-                                    <td className="px-6 py-4 text-white dark:text-white text-gray-900 font-medium">{script.version}</td>
-                                    <td className="px-6 py-4 text-gray-300 dark:text-gray-300 text-gray-600">{script.uploaderName}</td>
-                                    <td className="px-6 py-4">
-                                      <span className={`px-2 py-1 rounded text-sm ${
-                                        script.status === 'approved' 
-                                          ? 'bg-green-600 text-white' 
-                                          : 'bg-red-600 text-white'
-                                      }`}>
-                                        {script.status === 'approved' ? '已通过' : '已拒绝'}
-                                      </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-300 dark:text-gray-300 text-gray-600">{script.likes} / {script.downloads}</td>
-                                    <td className="px-6 py-4 text-gray-300 dark:text-gray-300 text-gray-600">{script.uploadDate}</td>
-                                    <td className="px-6 py-4">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteScript(script.id);
-                                        }}
-                                        className="flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
-                                      >
-                                        <Trash2 size={14} />
-                                        <span>删除</span>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            {groupScripts.map((script) => (
+                              <div key={script.id} className="border-b border-gray-700 dark:border-gray-700 border-gray-200 last:border-b-0">
+                                <div className="p-4">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="flex-1">
+                                      <div className="flex items-center justify-between">
+                                        <div>
+                                          <h4 className="text-lg font-semibold text-white dark:text-white text-gray-900">{script.title}</h4>
+                                          <p className="text-gray-400 dark:text-gray-400 text-gray-600 text-sm">版本 {script.version} · {script.uploadDate}</p>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                          {/* 状态选择器 */}
+                                          <select
+                                            value={script.status}
+                                            onChange={(e) => handleStatusChange(script.id, e.target.value as 'pending' | 'approved' | 'rejected')}
+                                            className={`px-3 py-1 rounded-lg text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                              script.status === 'pending'
+                                                ? 'bg-yellow-600 text-white'
+                                                : script.status === 'approved'
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-red-600 text-white'
+                                            }`}
+                                          >
+                                            <option value="pending">待审核</option>
+                                            <option value="approved">已通过</option>
+                                            <option value="rejected">已拒绝</option>
+                                          </select>
+                                          
+                                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                            script.status === 'pending'
+                                              ? 'bg-yellow-600 text-white'
+                                              : script.status === 'approved'
+                                              ? 'bg-green-600 text-white'
+                                              : 'bg-red-600 text-white'
+                                          }`}>
+                                            {script.status === 'pending' ? '待审核' : script.status === 'approved' ? '已通过' : '已拒绝'}
+                                          </span>
+                                          
+                                          <button
+                                            onClick={() => handleDeleteScript(script.id)}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm transition-colors flex items-center space-x-1"
+                                          >
+                                            <Trash2 size={14} />
+                                            <span>删除</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <div className="mt-2 flex items-center space-x-4 text-sm text-gray-400 dark:text-gray-400 text-gray-600">
+                                        <span>上传者: {script.uploaderName}</span>
+                                        <span>点赞: {script.likes}</span>
+                                        <span>下载: {script.downloads}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
                     );
                   })}
                 </div>
+
+                {Object.keys(groupedScripts).length === 0 && scripts.length > 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-lg">
+                      没有找到 {statusFilter === 'pending' ? '待审核' : statusFilter === 'approved' ? '已通过' : '已拒绝'} 状态的剧本
+                    </p>
+                  </div>
+                )}
+
+                {scripts.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 dark:text-gray-400 text-gray-500 text-lg">暂无剧本数据</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
