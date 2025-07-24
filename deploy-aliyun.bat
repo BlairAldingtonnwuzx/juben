@@ -31,7 +31,7 @@ if errorlevel 1 (
     exit /b 1
 )
 for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
-echo ✅ Node.js版本: %NODE_VERSION%
+echo [OK] Node.js版本: %NODE_VERSION%
 
 :: 检查npm
 echo [2/10] 检查npm包管理器...
@@ -42,7 +42,7 @@ if errorlevel 1 (
     exit /b 1
 )
 for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
-echo ✅ npm版本: %NPM_VERSION%
+echo [OK] npm版本: %NPM_VERSION%
 
 :: 检查防火墙端口
 echo [3/10] 检查防火墙设置...
@@ -53,10 +53,10 @@ if errorlevel 1 (
     if errorlevel 1 (
         echo ⚠️  无法自动添加防火墙规则，请手动开放端口3001
     ) else (
-        echo ✅ 已添加防火墙规则（端口3001）
+        echo [OK] 已添加防火墙规则（端口3001）
     )
 ) else (
-    echo ✅ 防火墙规则已存在
+    echo [OK] 防火墙规则已存在
 )
 
 :: 检查端口占用
@@ -68,9 +68,9 @@ if not errorlevel 1 (
         taskkill /PID %%a /F >nul 2>&1
     )
     timeout /t 2 >nul
-    echo ✅ 端口清理完成
+    echo [OK] 端口清理完成
 ) else (
-    echo ✅ 端口3001可用
+    echo [OK] 端口3001可用
 )
 
 :: 安装依赖
@@ -88,7 +88,7 @@ if errorlevel 1 (
         exit /b 1
     )
 )
-echo ✅ 依赖安装完成
+echo [OK] 依赖安装完成
 
 :: 创建目录结构
 echo [6/10] 创建目录结构...
@@ -104,7 +104,7 @@ icacls uploads /grant Everyone:F >nul 2>&1
 icacls data /grant Everyone:F >nul 2>&1
 icacls logs /grant Everyone:F >nul 2>&1
 
-echo ✅ 目录结构创建完成
+echo [OK] 目录结构创建完成
 
 :: 构建前端
 echo [7/10] 构建前端项目...
@@ -115,7 +115,7 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-echo ✅ 前端构建完成
+echo [OK] 前端构建完成
 
 :: 创建服务启动脚本
 echo [8/10] 创建服务管理脚本...
@@ -129,7 +129,7 @@ echo title 剧本管理系统-前端服务 >> start-frontend.bat
 echo echo 前端服务启动中... >> start-frontend.bat
 echo npm run preview >> start-frontend.bat
 
-echo ✅ 服务脚本创建完成
+echo [OK] 服务脚本创建完成
 
 :: 启动后端服务
 echo [9/10] 启动后端服务...
@@ -142,7 +142,7 @@ curl -s http://localhost:3001 >nul 2>&1
 if errorlevel 1 (
     echo ⚠️  后端服务可能需要更多时间启动，请稍后检查
 ) else (
-    echo ✅ 后端服务启动成功
+    echo [OK] 后端服务启动成功
 )
 
 :: 获取服务器IP
@@ -202,7 +202,7 @@ if exist "%USERPROFILE%\Desktop" (
     echo URL=http://localhost:3001 >> "%USERPROFILE%\Desktop\剧本管理系统.url"
     echo IconFile=%SystemRoot%\System32\SHELL32.dll >> "%USERPROFILE%\Desktop\剧本管理系统.url"
     echo IconIndex=13 >> "%USERPROFILE%\Desktop\剧本管理系统.url"
-    echo ✅ 桌面快捷方式已创建
+    echo [OK] 桌面快捷方式已创建
 )
 
 echo.

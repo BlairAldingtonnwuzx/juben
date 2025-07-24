@@ -13,12 +13,12 @@ set BACKUP_DIR=backup\backup_%BACKUP_DATE%
 echo [1/4] 创建备份目录...
 if not exist "backup" mkdir backup
 mkdir "%BACKUP_DIR%"
-echo ✅ 备份目录: %BACKUP_DIR%
+echo [OK] 备份目录: %BACKUP_DIR%
 
 echo [2/4] 备份数据文件...
 if exist "data" (
     xcopy "data" "%BACKUP_DIR%\data" /E /I /Y >nul
-    echo ✅ 数据文件备份完成
+    echo [OK] 数据文件备份完成
 ) else (
     echo ⚠️  数据目录不存在
 )
@@ -26,7 +26,7 @@ if exist "data" (
 echo [3/4] 备份上传文件...
 if exist "uploads" (
     xcopy "uploads" "%BACKUP_DIR%\uploads" /E /I /Y >nul
-    echo ✅ 上传文件备份完成
+    echo [OK] 上传文件备份完成
 ) else (
     echo ⚠️  上传目录不存在
 )
@@ -35,7 +35,7 @@ echo [4/4] 备份配置文件...
 if exist "package.json" copy "package.json" "%BACKUP_DIR%\" >nul
 if exist "server.cjs" copy "server.cjs" "%BACKUP_DIR%\" >nul
 if exist "ecosystem.config.js" copy "ecosystem.config.js" "%BACKUP_DIR%\" >nul
-echo ✅ 配置文件备份完成
+echo [OK] 配置文件备份完成
 
 :: 创建备份信息文件
 echo 备份时间: %date% %time% > "%BACKUP_DIR%\backup_info.txt"

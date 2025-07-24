@@ -12,11 +12,11 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-echo ✅ PM2安装完成
+echo [OK] PM2安装完成
 
 echo [2/3] 配置PM2开机自启...
 pm2 startup
-echo ✅ PM2开机自启配置完成
+echo [OK] PM2开机自启配置完成
 
 echo [3/3] 创建PM2配置文件...
 echo module.exports = { > ecosystem.config.js
@@ -38,7 +38,7 @@ echo     restart_delay: 4000 >> ecosystem.config.js
 echo   }] >> ecosystem.config.js
 echo }; >> ecosystem.config.js
 
-echo ✅ PM2配置文件创建完成
+echo [OK] PM2配置文件创建完成
 
 echo.
 echo ========================================
