@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "start-backend": "node server.cjs",
     "start": "concurrently \"npm run start-backend\" \"npm run dev\"",
-    "dev:full": "concurrently \"npm run start-backend\" \"npm run dev\""
+    "dev:full": "concurrently --kill-others-on-fail \"npm run start-backend\" \"npm run dev\""
   },
   "dependencies": {
     "cors": "^2.8.5",
