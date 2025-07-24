@@ -51,24 +51,5 @@
     },
     "joinDate": "2025-07-24",
     "uploadCount": 0
-  },
-  {
-    "id": "1753337059791",
-    "name": "2712439942",
-    "email": "2712439942@qq.com",
-    "role": "user",
-    "canUpload": true,
-    "skipReview": false,
-    "permissions": {
-      "canViewScripts": true,
-      "canDownloadScripts": true,
-      "canUploadScripts": true,
-      "canManageUsers": false,
-      "canManageTags": false,
-      "canApproveScripts": false,
-      "canDeleteScripts": false
-    },
-    "joinDate": "2025-07-24",
-    "uploadCount": 0
   }
 ]
