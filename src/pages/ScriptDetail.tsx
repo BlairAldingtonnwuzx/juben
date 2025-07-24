@@ -478,6 +478,13 @@ const ScriptDetail: React.FC<ScriptDetailProps> = ({ script, onBack }) => {
                 </button>
 
                 <button
+                  onClick={handleDownloadImage}
+                  className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  <Download size={20} />
+                  <span>下载图片</span>
+                </button>
+                <button
                   onClick={async () => {
                     try {
                       // 生成可直接在浏览器中打开的JSON文件链接
