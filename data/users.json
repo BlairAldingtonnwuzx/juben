@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "name": "管理员",
+    "email": "admin@example.com",
+    "role": "admin",
+    "canUpload": true,
+    "skipReview": true,
+    "joinDate": "2024-01-01",
+    "uploadCount": 3,
+    "permissions": {
+      "canApproveScripts": true,
+      "canViewScripts": true,
+      "canManageTags": true,
+      "canDownloadScripts": true,
+      "canDeleteScripts": true,
+      "canUploadScripts": true,
+      "canManageUsers": true
+    }
+  },
+  {
+    "id": "2",
+    "name": "普通用户",
+    "email": "user@example.com",
+    "role": "user",
+    "canUpload": true,
+    "skipReview": false,
+    "joinDate": "2024-01-15",
+    "uploadCount": 3,
+    "permissions": {
+      "canViewScripts": false,
+      "canDownloadScripts": false
+    }
+  }
+]
