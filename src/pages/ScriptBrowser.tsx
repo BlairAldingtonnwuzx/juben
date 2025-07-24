@@ -86,8 +86,7 @@ const ScriptBrowser: React.FC<ScriptBrowserProps> = ({ onScriptSelect }) => {
               <img
                 src={script.imageUrl}
                 alt={script.title}
-                className="w-full h-64 object-cover"
-                style={{ minHeight: '256px' }}
+                className="w-full h-auto object-contain bg-gray-900"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'https://images.pexels.com/photos/1029807/pexels-photo-1029807.jpeg?auto=compress&cs=tinysrgb&w=800';
