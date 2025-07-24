@@ -181,7 +181,15 @@ const initDataFiles = () => {
 
   // 初始化系统配置
   const defaultConfig = {
-    availableTags: ['推理', '悬疑', '科幻', '恐怖', '冒险', '角色扮演', '团队合作', '简单', '中等难度', '高难度']
+    availableTags: ['推理', '悬疑', '科幻', '恐怖', '冒险', '角色扮演', '团队合作', '简单', '中等难度', '高难度'],
+    systemSettings: {
+      allowUserRegistration: true,
+      requireScriptApproval: true,
+      maxUploadSizeKB: 10240,
+      allowedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/json'],
+      maxUploadsPerDay: 10,
+      maxScriptsPerUser: 50
+    }
   };
 
   if (!fs.existsSync(usersDataFile)) {

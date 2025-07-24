@@ -265,10 +265,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
         setSuccess('系统设置保存成功');
         setTimeout(() => setSuccess(''), 3000);
         
-        // 触发全局设置更新事件
+        // 触发全局设置更新事件 - 通知所有客户端
         window.dispatchEvent(new CustomEvent('systemSettingsUpdated', { 
           detail: { systemSettings } 
         }));
+        
+        // 广播到其他窗口/标签页
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('systemSettings');
+          channel.postMessage({ type: 'settingsUpdated', systemSettings });
+          channel.close();
+        }
       } else {
         setError(result.error || '保存设置失败');
       }

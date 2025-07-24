@@ -143,21 +143,52 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         setSystemSettings(config.systemSettings || { allowUserRegistration: true });
       } catch (error) {
         console.error('Failed to load system settings:', error);
-        // 默认允许注册
         setSystemSettings({ allowUserRegistration: true });
       }
     };
     loadSystemSettings();
     
-    // 监听系统设置更新事件
+    // 监听系统设置更新事件 - 实时同步
     const handleSettingsUpdate = (event: CustomEvent) => {
       setSystemSettings(event.detail.systemSettings);
     };
     
     window.addEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
     
+    // 监听跨标签页/窗口的设置更新
+    let broadcastChannel: BroadcastChannel | null = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      broadcastChannel = new BroadcastChannel('systemSettings');
+      broadcastChannel.onmessage = (event) => {
+        if (event.data.type === 'settingsUpdated') {
+          setSystemSettings(event.data.systemSettings);
+        }
+      };
+    }
+    
+    // 定期检查设置更新（防止事件丢失）
+    const checkSettingsInterval = setInterval(async () => {
+      try {
+        const config = await fetchSystemConfig();
+        const newSettings = config.systemSettings || { allowUserRegistration: true };
+        setSystemSettings(prevSettings => {
+          // 只有当设置真的改变时才更新
+          if (JSON.stringify(prevSettings) !== JSON.stringify(newSettings)) {
+            return newSettings;
+          }
+          return prevSettings;
+        });
+      } catch (error) {
+        // 静默处理错误，避免干扰用户体验
+      }
+    }, 5000); // 每5秒检查一次
+    
     return () => {
       window.removeEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
+      if (broadcastChannel) {
+        broadcastChannel.close();
+      }
+      clearInterval(checkSettingsInterval);
     };
   }, []);
 
