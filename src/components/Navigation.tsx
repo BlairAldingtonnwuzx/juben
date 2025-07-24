@@ -139,12 +139,12 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   useEffect(() => {
     const loadSystemSettings = async () => {
       try {
-        const settings = await fetchSystemConfig();
-        setSystemSettings(settings);
+        const config = await fetchSystemConfig();
+        setSystemSettings(config.systemSettings || { allowUserRegistration: true });
       } catch (error) {
         console.error('Failed to load system settings:', error);
         // 默认允许注册
-        setSystemSettings({ allowUserRegistration: true });
+        setSystemSettings({ systemSettings: { allowUserRegistration: true } });
       }
     };
     loadSystemSettings();
@@ -409,15 +409,15 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             onClick={switchMode}
             disabled={isSubmitting}
             className={`font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              systemSettings?.allowUserRegistration 
+              systemSettings?.allowUserRegistration !== false
                 ? 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300' 
                 : 'text-gray-400 cursor-not-allowed'
             }`}
-            style={{ display: !systemSettings?.allowUserRegistration && isRegistering ? 'none' : 'block' }}
+            style={{ display: systemSettings?.allowUserRegistration === false && isRegistering ? 'none' : 'block' }}
           >
-            {isRegistering ? '已有账户？立即登录' : (systemSettings?.allowUserRegistration ? '没有账户？立即注册' : '注册功能已关闭')}
+            {isRegistering ? '已有账户？立即登录' : (systemSettings?.allowUserRegistration !== false ? '没有账户？立即注册' : '注册功能已关闭')}
           </button>
-          {!systemSettings?.allowUserRegistration && !isRegistering && (
+          {systemSettings?.allowUserRegistration === false && !isRegistering && (
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               管理员已关闭用户注册功能
             </p>
