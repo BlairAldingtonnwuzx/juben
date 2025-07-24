@@ -56,27 +56,6 @@ const AdminPanel: React.FC = () => {
 
   const usersPerPage = 10;
 
-  // 早期返回检查 - 在所有 hooks 调用之后
-  if (!isAdmin) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 text-center">
-          <h2 className="text-xl font-semibold text-red-400 mb-2">访问被拒绝</h2>
-          <p className="text-red-300">您没有权限访问管理后台</p>
-        </div>
-      </div>
-    );
-  }
-
-  // useEffect hooks
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
   const loadData = async () => {
     setLoading(true);
     try {
@@ -97,6 +76,29 @@ const AdminPanel: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // useEffect hooks - 必须在所有 useState 之后，早期返回之前
+  useEffect(() => {
+    if (isAdmin) {
+      loadData();
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // 早期返回检查 - 在所有 hooks 调用之后
+  if (!isAdmin) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 text-center">
+          <h2 className="text-xl font-semibold text-red-400 mb-2">访问被拒绝</h2>
+          <p className="text-red-300">您没有权限访问管理后台</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleScriptStatusChange = async (scriptId: string, newStatus: 'pending' | 'approved' | 'rejected') => {
     try {
