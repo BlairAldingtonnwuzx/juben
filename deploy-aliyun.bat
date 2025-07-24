@@ -138,11 +138,16 @@ timeout /t 5 >nul
 
 :: 检查后端服务状态
 echo 检查后端服务状态...
-curl -s http://localhost:3001 >nul 2>&1
+powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:3001' -TimeoutSec 5 -UseBasicParsing | Out-Null; Write-Host '[OK] 后端服务启动成功' } catch { Write-Host '⚠️  后端服务可能需要更多时间启动，请稍后检查' }" 2>nul
 if errorlevel 1 (
-    echo ⚠️  后端服务可能需要更多时间启动，请稍后检查
-) else (
-    echo [OK] 后端服务启动成功
+    echo [INFO] 使用备用检查方法...
+    timeout /t 2 >nul
+    netstat -ano | findstr :3001 >nul
+    if not errorlevel 1 (
+        echo [OK] 后端服务端口已监听
+    ) else (
+        echo [WARN] 后端服务可能需要更多时间启动
+    )
 )
 
 :: 获取服务器IP
