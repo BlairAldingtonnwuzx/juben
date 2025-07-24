@@ -38,7 +38,7 @@ function App() {
       case 'upload':
         return <Upload />;
       case 'admin':
-        return <AdminPanel />;
+        return <AdminPanel onScriptSelect={handleScriptSelect} />;
       default:
         return <ScriptBrowser onScriptSelect={handleScriptSelect} />;
     }
