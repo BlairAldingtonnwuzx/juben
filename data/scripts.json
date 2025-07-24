@@ -1,29 +1,5 @@
 [
   {
-    "id": "2",
-    "title": "星际逃亡",
-    "description": "科幻背景的角色扮演剧本，体验太空冒险",
-    "imageUrl": "https://images.pexels.com/photos/1274260/pexels-photo-1274260.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "jsonData": {
-      "chapters": 6,
-      "difficulty": "hard",
-      "duration": "4-5小时"
-    },
-    "uploaderId": "2",
-    "uploaderName": "普通用户",
-    "uploadDate": "2024-01-18",
-    "likes": 38,
-    "downloads": 124,
-    "status": "approved",
-    "tags": [
-      "科幻",
-      "冒险",
-      "高难度"
-    ],
-    "version": "v1.0",
-    "baseScriptId": "2"
-  },
-  {
     "id": "3",
     "title": "古堡秘密",
     "description": "中世纪背景的恐怖剧本，挑战玩家的胆量",
