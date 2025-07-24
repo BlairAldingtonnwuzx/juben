@@ -330,7 +330,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
-                placeholder={isRegistering ? "请输入邮箱地址" : "请输入邮箱地址"}
+                placeholder={isRegistering ? "输入邮箱" : "输入邮箱"}
                 required
                 disabled={isSubmitting}
                 minLength={isRegistering ? 6 : undefined}
