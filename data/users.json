@@ -108,5 +108,24 @@
     },
     "joinDate": "2025-07-24",
     "uploadCount": 0
+  },
+  {
+    "id": "1753337551871",
+    "name": "123",
+    "email": "123@123.com",
+    "role": "user",
+    "canUpload": true,
+    "skipReview": false,
+    "permissions": {
+      "canViewScripts": true,
+      "canDownloadScripts": true,
+      "canUploadScripts": true,
+      "canManageUsers": false,
+      "canManageTags": false,
+      "canApproveScripts": false,
+      "canDeleteScripts": false
+    },
+    "joinDate": "2025-07-24",
+    "uploadCount": 0
   }
 ]
