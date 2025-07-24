@@ -148,8 +148,26 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
     };
     loadSystemSettings();
+    
+    // 监听系统设置更新事件
+    const handleSettingsUpdate = (event: CustomEvent) => {
+      setSystemSettings(event.detail.systemSettings || { allowUserRegistration: true });
+    };
+    
+    window.addEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('systemSettingsUpdated', handleSettingsUpdate as EventListener);
+    };
   }, []);
 
+  // 当注册功能被禁用时，自动切换到登录模式
+  useEffect(() => {
+    if (systemSettings?.allowUserRegistration === false && isRegistering) {
+      setIsRegistering(false);
+      resetForm();
+    }
+  }, [systemSettings?.allowUserRegistration, isRegistering]);
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
