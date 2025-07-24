@@ -1,5 +1,18 @@
 {
   "availableTags": [
     "管三"
-  ]
+  ],
+  "systemSettings": {
+    "allowUserRegistration": false,
+    "requireScriptApproval": true,
+    "maxUploadSizeKB": 10240,
+    "maxUploadsPerDay": 10,
+    "maxScriptsPerUser": 50,
+    "allowedFileTypes": [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "application/json"
+    ]
+  }
 }
