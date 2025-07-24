@@ -23,6 +23,14 @@ const Upload: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [jsonContent, setJsonContent] = useState<any>(null);
+  const [systemSettings, setSystemSettings] = useState({
+    allowUserRegistration: true,
+    requireScriptApproval: true,
+    maxUploadSizeKB: 10240,
+    maxUploadsPerDay: 10,
+    maxScriptsPerUser: 50,
+    allowedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/json']
+  });
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +46,7 @@ const Upload: React.FC = () => {
         const approved = scripts.filter((script: Script) => script.status === 'approved');
         setApprovedScripts(approved);
         setAvailableTags(config.availableTags || []);
+        setSystemSettings(config);
       } catch (error) {
         console.error('加载剧本失败:', error);
       }
