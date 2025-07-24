@@ -29,7 +29,8 @@
     "uploadCount": 3,
     "permissions": {
       "canViewScripts": true,
-      "canDownloadScripts": true
+      "canDownloadScripts": true,
+      "canUploadScripts": true
     }
   }
 ]
