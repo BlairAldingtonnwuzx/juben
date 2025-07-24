@@ -3,7 +3,7 @@
     "id": "1",
     "name": "管理员",
     "email": "admin@mm.com",
-    "role": "admin",
+    "role": "user",
     "canUpload": true,
     "skipReview": true,
     "joinDate": "2024-01-01",
