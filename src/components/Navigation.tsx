@@ -429,7 +429,7 @@ const LoginModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             className={`font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               systemSettings?.allowUserRegistration === false
                 ? 'text-gray-400 cursor-not-allowed'
-                ? 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300' 
+                : 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300' 
             }`}
           >
             {isRegistering 
