@@ -347,5 +347,53 @@
     ],
     "version": "1.0",
     "baseScriptId": "1753331091442"
+  },
+  {
+    "id": "1753331355168",
+    "title": "卓卓",
+    "description": "卓卓",
+    "imageUrl": "http://localhost:3001/uploads/images/script-img-1753331355092-563926026.jpg",
+    "jsonUrl": "http://localhost:3001/uploads/json/script-json-1753331355165-505302350.json",
+    "jsonData": [
+      {
+        "id": "_meta",
+        "name": "圆桌骑士团",
+        "author": "我",
+        "logo": "https://www.helloimg.com/i/2025/01/16/6788aa71947dc.png",
+        "almanac": "https:\\/\\/www.bloodstar.xyz\\/p\\/humlet\\/che\\/almanac.html"
+      },
+      {
+        "id": "slayer"
+      },
+      {
+        "id": "soldier"
+      },
+      {
+        "id": "mayor"
+      },
+      {
+        "id": "moonchild"
+      },
+      {
+        "id": "poisoner"
+      },
+      {
+        "id": "fang_gu"
+      },
+      {
+        "id": "vigormortis"
+      }
+    ],
+    "uploaderId": "1",
+    "uploaderName": "管理员",
+    "uploadDate": "2025-07-24",
+    "likes": 0,
+    "downloads": 0,
+    "status": "approved",
+    "tags": [
+      "管三"
+    ],
+    "version": "2.0",
+    "baseScriptId": "1753331091442"
   }
 ]
