@@ -838,17 +838,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
           {/* 用户注册设置 */}
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <h3 className="text-xl font-semibold text-white mb-4">用户注册设置</h3>
-            <div className="mb-4 p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
-              <div className="flex items-start space-x-3">
-                <Info className="text-blue-400 mt-0.5" size={20} />
-                <div>
-                  <h4 className="text-blue-300 font-medium mb-1">功能说明</h4>
-                  <p className="text-blue-200 text-sm">
-                    控制新用户是否可以通过注册页面创建账户。关闭后，只有管理员可以手动添加新用户。
-                  </p>
-                </div>
-              </div>
-            </div>
             <div className="space-y-4">
               <label className="flex items-center justify-between">
                 <div>
@@ -895,50 +884,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onScriptSelect }) => {
                   </div>
                 </div>
               </label>
-              
-              {/* 注册限制设置 */}
-              <div className={`transition-all duration-300 ${
-                systemSettings.allowUserRegistration ? 'opacity-100' : 'opacity-50'
-              }`}>
-                <div className="border-t border-gray-600 pt-4 mt-4">
-                  <h4 className="text-gray-300 font-medium mb-3">注册限制设置</h4>
-                  <div className="space-y-3">
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        checked={systemSettings.requireEmailVerification || false}
-                        onChange={(e) => setSystemSettings(prev => ({ 
-                          ...prev, 
-                          requireEmailVerification: e.target.checked 
-                        }))}
-                        disabled={!systemSettings.allowUserRegistration}
-                        className="rounded border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                      />
-                      <div>
-                        <span className="text-gray-300 text-sm">需要邮箱验证</span>
-                        <p className="text-gray-400 text-xs">新用户注册后需要验证邮箱才能使用</p>
-                      </div>
-                    </label>
-                    
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        checked={systemSettings.autoApproveNewUsers || false}
-                        onChange={(e) => setSystemSettings(prev => ({ 
-                          ...prev, 
-                          autoApproveNewUsers: e.target.checked 
-                        }))}
-                        disabled={!systemSettings.allowUserRegistration}
-                        className="rounded border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                      />
-                      <div>
-                        <span className="text-gray-300 text-sm">自动激活新用户</span>
-                        <p className="text-gray-400 text-xs">新用户注册后自动激活，无需管理员审核</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
